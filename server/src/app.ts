@@ -10,14 +10,16 @@ dotenv.config();
 
 export const app: Application = express();
 app.use(express.json());
-app.use(cors());
+app.use(cors({ origin: ["http://localhost:3000"], credentials: true }));
 app.use(
   session({
     secret: process.env.SESSION_SECRET!,
-    store: new MongoStore({ mongoUrl: process.env.DATABASE_URI, ttl: 14 * 24 * 60 * 60 }),
+    store: new MongoStore({
+      mongoUrl: process.env.DATABASE_URI,
+      ttl: 14 * 24 * 60 * 60,
+    }),
     cookie: {
       secure: process.env.NODE_ENV === "production",
-      sameSite: "none"
     },
   }),
 );

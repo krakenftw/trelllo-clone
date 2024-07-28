@@ -10,14 +10,18 @@ export const handleUserLogin = async (req: Request, res: Response) => {
   }
 
   try {
-    const user: IUser | null = await User.findOne({ email }).select("+password");
+    const user: IUser | null = await User.findOne({ email }).select(
+      "+password",
+    );
 
     if (!user) {
       return res.status(400).json({ message: "Invalid email or password" });
     }
 
-
-    const isPasswordValid: boolean = await bcrypt.compare(password, user.password!);
+    const isPasswordValid: boolean = await bcrypt.compare(
+      password,
+      user.password!,
+    );
 
     if (!isPasswordValid) {
       return res.status(400).json({ message: "Invalid email or password" });
@@ -26,7 +30,7 @@ export const handleUserLogin = async (req: Request, res: Response) => {
     req.session.user = {
       id: user._id,
       name: user.name!,
-      email: user.email!
+      email: user.email!,
     };
 
     return res.status(200).json({ message: "User logged in successfully" });
@@ -59,14 +63,13 @@ export const handleUserRegister = async (req: Request, res: Response) => {
 
     await newUser.save();
 
-    console.log(newUser)
+    console.log(newUser);
 
     req.session.user = {
-
       id: newUser.id,
       name: newUser.name!,
-      email: newUser.email!
-    }
+      email: newUser.email!,
+    };
 
     return res.status(201).json({ message: "User registered successfully" });
   } catch (error) {
@@ -74,3 +77,32 @@ export const handleUserRegister = async (req: Request, res: Response) => {
     return res.status(500).json({ message: "Server error" });
   }
 };
+
+export async function getUserData(req: Request, res: Response) {
+  try {
+    if (!req.session.user || !req.session.user.id) {
+      return res
+        .status(401)
+        .json({ message: "Unauthorized: User not logged in" });
+    }
+
+    const userId = req.session.user.id;
+
+    const user = await User.findById(userId).select("name email");
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json({
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+      },
+    });
+  } catch (error) {
+    console.error("Error in getUserData:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+}
