@@ -3,6 +3,9 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { UserProvider } from "@/hooks/useAuth";
+import TimeAgo from "javascript-time-ago";
+import en from "javascript-time-ago/locale/en";
+
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -16,6 +19,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  TimeAgo.addDefaultLocale(en);
   return (
     <html lang="en">
       <UserProvider>      <body className={inter.className}>{children}</body>
