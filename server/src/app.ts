@@ -10,7 +10,17 @@ dotenv.config();
 
 export const app: Application = express();
 app.use(express.json());
-app.use(cors({ origin: ["http://localhost:3000"], credentials: true }));
+app.use(
+  cors({
+    origin: [
+      "http://localhost:3000",
+      "trelllo-clone.vercel.app",
+      "trelllo-clone-git-main-krakenftws-projects.vercel.app",
+      "trelllo-clone-wp1t2sglp-krakenftws-projects.vercel.app",
+    ],
+    credentials: true,
+  }),
+);
 app.use(
   session({
     secret: process.env.SESSION_SECRET!,
