@@ -13,10 +13,16 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { Button } from "../ui/button";
-import { useUser } from "@/hooks/useAuth";
+import { User, useUser } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
 
-export default function Sidebar({ user, setShowModal }: any) {
+export default function Sidebar({
+  user,
+  setShowModal,
+}: {
+  user: User;
+  setShowModal: React.Dispatch<React.SetStateAction<boolean>>;
+}) {
   const router = useRouter();
   const { logout } = useUser();
   return (

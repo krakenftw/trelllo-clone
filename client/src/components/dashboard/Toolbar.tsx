@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { ReactNode } from "react";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import {
@@ -12,7 +12,13 @@ import {
   Sparkles,
 } from "lucide-react";
 
-const ToolbarButton = ({ children, icon: Icon }: any) => (
+const ToolbarButton = ({
+  children,
+  icon: Icon,
+}: {
+  children: ReactNode;
+  icon: any;
+}) => (
   <Button size="sm" variant="ghost" className="text-gray-500 gap-3 p-2">
     {children} <Icon size={18} />
   </Button>

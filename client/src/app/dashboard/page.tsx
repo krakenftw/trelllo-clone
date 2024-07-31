@@ -7,11 +7,11 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function Dashboard() {
-  const [showModal, setShowModal] = useState(false);
+  const [showModal, setShowModal] = useState<boolean>(false);
   const router = useRouter();
   const { user, loading } = useUser();
 
-  useEffect(() => {
+  useEffect((): void => {
     if (!loading && !user) {
       router.push("/login");
     }
@@ -22,7 +22,7 @@ export default function Dashboard() {
   }
 
   if (!user) {
-    return null; // or another loading indicator if you prefer
+    return null;
   }
 
   return (
@@ -31,6 +31,7 @@ export default function Dashboard() {
         <Sidebar user={user} setShowModal={setShowModal} />
       </div>
       <div className="w-full">
+        {" "}
         <DashHero
           user={user}
           showModal={showModal}

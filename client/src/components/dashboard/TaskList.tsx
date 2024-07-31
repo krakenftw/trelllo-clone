@@ -1,3 +1,4 @@
+//@ts-nocheck
 import { useDroppable } from "@dnd-kit/core";
 import {
   SortableContext,
@@ -6,8 +7,17 @@ import {
 import { ChartNoAxesColumnIncreasing, Plus } from "lucide-react";
 import { SortableItem } from "../dnd/SortableItem";
 import { Draggable } from "../dnd/Draggable";
-import { Task } from "./Task";
+import { ITask, Task } from "./Task";
 import { Button } from "../ui/button";
+import { Columns, IBoardData } from "./TaskView";
+
+interface TaskListProps {
+  columns: Columns;
+  boardData: IBoardData;
+  name: string;
+  setShowModal: React.Dispatch<React.SetStateAction<boolean>>;
+  setDefaultStatus: React.Dispatch<React.SetStateAction<string>>;
+}
 
 export function TaskList({
   columns,
@@ -15,14 +25,15 @@ export function TaskList({
   name,
   setShowModal,
   setDefaultStatus,
-  handleDeleteTask,
-}: any) {
+}: TaskListProps) {
   const { setNodeRef } = useDroppable({
     id: name,
   });
-
   return (
-<div className="overflow-x-hidden w-1/4 overflow-scroll p-4 bg-gray-100 rounded-lg shadow" style={{ position: 'relative', zIndex: 1 }}>
+    <div
+      className="overflow-x-hidden w-1/4 overflow-scroll p-4 bg-gray-100 rounded-lg shadow"
+      style={{ position: "relative", zIndex: 1 }}
+    >
       <div className="flex items-center w-full justify-between mb-4">
         <span className="font-semibold">{columns[name]}</span>
         <ChartNoAxesColumnIncreasing className="rotate-90" />
@@ -32,17 +43,14 @@ export function TaskList({
         className="flex flex-col w-full space-y-2 min-h-[50px]"
       >
         <SortableContext
+          //@ts-ignore
           items={boardData[name]}
           strategy={verticalListSortingStrategy}
         >
-          {boardData[name].map((task: any) => (
+          {boardData[name].map((task: ITask) => (
             <SortableItem id={task._id} key={task._id}>
               <Draggable id={task._id}>
-                <Task
-                  handleDeleteTask={handleDeleteTask}
-                  key={task._id}
-                  task={task}
-                />
+                <Task key={task._id} task={task} />
               </Draggable>
             </SortableItem>
           ))}
@@ -69,4 +77,3 @@ export function TaskList({
     </div>
   );
 }
-

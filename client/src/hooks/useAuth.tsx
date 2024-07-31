@@ -8,7 +8,7 @@ import React, {
   ReactNode,
 } from "react";
 
-interface User {
+export interface User {
   name: string;
   email: string;
   id: string;
@@ -24,10 +24,6 @@ interface UserContextType {
 export const UserContext = createContext<UserContextType | undefined>(
   undefined,
 );
-
-// interface UserProviderProps {
-//   children: ReactNode;
-// }
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);

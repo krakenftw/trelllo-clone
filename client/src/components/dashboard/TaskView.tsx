@@ -14,16 +14,44 @@ import TimeAgo from "javascript-time-ago";
 import en from "javascript-time-ago/locale/en";
 import { TaskList } from "./TaskList";
 import NewTaskModal from "./NewTaskModal";
-import { Task } from "./Task";
+import { ITask, Task } from "./Task";
 
 TimeAgo.addDefaultLocale(en);
 
-export default function TaskView({ showModal, setShowModal }: any) {
+export interface IBoardData {
+  _id?: string;
+  userId?: string;
+  todo: ITask[];
+  in_progress: ITask[];
+  under_review: ITask[];
+  completed: ITask[];
+  updatedAt?: string;
+  createdAt?: string;
+  __v?: number;
+}
+
+type ColumnName = "todo" | "in_progress" | "under_review" | "completed";
+export type Columns = Record<ColumnName, string>;
+
+const columns: Record<ColumnName, string> = {
+  todo: "To Do",
+  in_progress: "In Progress",
+  under_review: "Under Review",
+  completed: "Completed",
+};
+
+export default function TaskView({
+  showModal,
+  setShowModal,
+}: {
+  showModal: boolean;
+  setShowModal: React.Dispatch<React.SetStateAction<boolean>>;
+}) {
   const [currTask, setCurrTask] = useState<any>(null);
   const { toast } = useToast();
-  const [boardData, setBoardData] = useState<any>(null);
+  const [boardData, setBoardData] = useState<IBoardData | null>(null);
   const [defaultStatus, setDefaultStatus] = useState<string>("todo");
-  const [isDragComplete, setIsDragComplete] = useState(false);
+  const [isDragComplete, setIsDragComplete] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchBoardData = async () => {
@@ -71,32 +99,32 @@ export default function TaskView({ showModal, setShowModal }: any) {
     }
   }, [boardData]);
 
-  const handleDeleteTask = async (id: string) => {
-    console.log("id, ", id);
-    try {
-      await axios.post(
-        `${process.env.NEXT_PUBLIC_SERVER_URL}/task/delete`,
-        {
-          taskId: id,
-        },
-        { withCredentials: true },
-      );
-
-      toast({ title: "Task Deleted" });
-      setBoardData((prev: any) => {
-        const updatedBoardData = { ...prev };
-        for (const key in updatedBoardData) {
-          updatedBoardData[key] = updatedBoardData[key].filter(
-            (task: any) => task._id !== id,
-          );
-        }
-        return updatedBoardData;
-      });
-    } catch (err) {
-      console.error(err);
-      toast({ title: "Error Deleting tasks" });
-    }
-  };
+  // const handleDeleteTask = async (id: string) => {
+  //   console.log("id, ", id);
+  //   try {
+  //     await axios.post(
+  //       `${process.env.NEXT_PUBLIC_SERVER_URL}/task/delete`,
+  //       {
+  //         taskId: id,
+  //       },
+  //       { withCredentials: true },
+  //     );
+  //
+  //     toast({ title: "Task Deleted" });
+  //     setBoardData((prev: any) => {
+  //       const updatedBoardData = { ...prev };
+  //       for (const key in updatedBoardData) {
+  //         updatedBoardData[key] = updatedBoardData[key].filter(
+  //           (task: any) => task._id !== id,
+  //         );
+  //       }
+  //       return updatedBoardData;
+  //     });
+  //   } catch (err) {
+  //     console.error(err);
+  //     toast({ title: "Error Deleting tasks" });
+  //   }
+  // };
 
   useEffect(() => {
     if (isDragComplete) {
@@ -104,13 +132,6 @@ export default function TaskView({ showModal, setShowModal }: any) {
       setIsDragComplete(false);
     }
   }, [isDragComplete, handleUpdateTasks]);
-
-  const columns: Record<string, string> = {
-    todo: "To Do",
-    in_progress: "In Progress",
-    under_review: "Under Review",
-    completed: "Completed",
-  };
 
   if (!boardData) return <Loader />;
 
@@ -137,12 +158,18 @@ export default function TaskView({ showModal, setShowModal }: any) {
 
     if (!isActiveATask) return;
 
-    const sourceColumn = Object.keys(columns).find((column) =>
-      boardData[column].find((task: any) => task._id === activeId),
+    const sourceColumn = Object.keys(columns).find(
+      (column) =>
+        boardData?.[column as ColumnName]?.find(
+          (task: ITask) => task._id === activeId,
+        ),
     );
     const destinationColumn = isOverATask
-      ? Object.keys(columns).find((column) =>
-          boardData[column].find((task: any) => task._id === overId),
+      ? Object.keys(columns).find(
+          (column) =>
+            boardData?.[column as ColumnName]?.find(
+              (task: ITask) => task._id === overId,
+            ),
         )
       : overId;
 
@@ -180,13 +207,19 @@ export default function TaskView({ showModal, setShowModal }: any) {
     const overId = over.id as string;
 
     if (activeId !== overId) {
-      const sourceColumn = Object.keys(columns).find((column) =>
-        boardData[column].find((task: any) => task._id === activeId),
-      );
-      let destinationColumn = Object.keys(columns).find((column) =>
-        boardData[column].find((task: any) => task._id === overId),
+      const sourceColumn = Object.keys(columns).find(
+        (column) =>
+          boardData?.[column as ColumnName]?.find(
+            (task: ITask) => task._id === activeId,
+          ),
       );
 
+      let destinationColumn = Object.keys(columns).find(
+        (column) =>
+          boardData?.[column as ColumnName]?.find(
+            (task: ITask) => task._id === overId,
+          ),
+      );
       if (!destinationColumn) {
         destinationColumn = overId as keyof typeof columns;
       }
@@ -234,7 +267,7 @@ export default function TaskView({ showModal, setShowModal }: any) {
       >
         <div className="flex w-full bg-white rounded-lg">
           <div className="flex w-full space-x-4">
-            {Object.keys(columns).map((key) => (
+            {Object.keys(columns).map((key: string) => (
               <TaskList
                 setShowModal={setShowModal}
                 key={key}
@@ -242,16 +275,11 @@ export default function TaskView({ showModal, setShowModal }: any) {
                 boardData={boardData}
                 name={key}
                 setDefaultStatus={setDefaultStatus}
-                handleDeleteTask={handleDeleteTask}
               />
             ))}
           </div>
         </div>
-        <DragOverlay>
-          {currTask ? (
-            <Task task={currTask} handleDeleteTask={handleDeleteTask} />
-          ) : null}
-        </DragOverlay>
+        <DragOverlay>{currTask ? <Task task={currTask} /> : null}</DragOverlay>
       </DndContext>
       <NewTaskModal
         setBoardData={setBoardData}

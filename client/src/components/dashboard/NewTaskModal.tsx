@@ -1,10 +1,4 @@
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useEffect, useState } from "react";
 import {
   Select,
@@ -14,7 +8,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "../ui/input";
-import { Textarea } from "../ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,
@@ -33,15 +26,14 @@ import {
 import { format } from "date-fns";
 import { useToast } from "../ui/use-toast";
 import axios from "axios";
-import Loader from "../Loading";
 import { Separator } from "../ui/separator";
 
 export default function NewTaskModal(props: any) {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
+  const [title, setTitle] = useState<string>("");
+  const [description, setDescription] = useState<string>("");
   const [date, setDate] = useState<Date | undefined>(undefined);
-  const [status, setStatus] = useState(props.defaultStatus || "todo");
-  const [priority, setPriority] = useState("low");
+  const [status, setStatus] = useState<string>(props.defaultStatus || "todo");
+  const [priority, setPriority] = useState<string>("low");
 
   const { toast } = useToast();
 
