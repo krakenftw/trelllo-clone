@@ -23,10 +23,18 @@ import {
 } from "@/components/ui/popover";
 import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
-import { CalendarIcon } from "lucide-react";
+import {
+  CalendarIcon,
+  LoaderIcon,
+  Pen,
+  PlusIcon,
+  ShieldAlert,
+} from "lucide-react";
 import { format } from "date-fns";
 import { useToast } from "../ui/use-toast";
 import axios from "axios";
+import Loader from "../Loading";
+import { Separator } from "../ui/separator";
 
 export default function NewTaskModal(props: any) {
   const [title, setTitle] = useState("");
@@ -83,56 +91,25 @@ export default function NewTaskModal(props: any) {
   return (
     <div>
       <Dialog open={props.showModal} onOpenChange={props.setShowModal}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Add new Task</DialogTitle>
-          </DialogHeader>
-          <div className="flex items-center justify-between gap-4">
+        <DialogContent className="flex [&>*]:w-full flex-col gap-4 w-full items-center justify-start">
+          <div className="flex  items-center justify-between gap-4">
             <Input
               placeholder="Title"
-              className="h-10"
+              className="h-10 p-0 text-3xl border-0"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
             />
           </div>
-          <div className="flex items-center justify-between gap-4">
-            <Textarea
-              placeholder="Description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-            />
-          </div>
-
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant={"outline"}
-                className={cn(
-                  "w-full justify-start text-left font-normal",
-                  !date && "text-muted-foreground",
-                )}
-              >
-                <CalendarIcon className="mr-2 h-4 w-4" />
-                {date ? format(date, "PPP") : <span>Deadline</span>}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0">
-              <Calendar
-                mode="single"
-                selected={date}
-                onSelect={setDate}
-                initialFocus
-              />
-            </PopoverContent>
-          </Popover>
-
-          <div className="flex items-center justify-between gap-4">
-            <span>Status</span>
+          <div className="flex w-full items-center justify-between gap-14">
+            <div className="flex items-center justify-center gap-4">
+              <LoaderIcon size={15} />
+              <span className="text-xl">Status</span>
+            </div>
             <Select value={status} onValueChange={setStatus}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Status" />
+              <SelectTrigger className="w-full text-md text-gray-500 border-0">
+                <SelectValue placeholder="Not Selected" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="w-full">
                 <SelectItem value="todo">Todo</SelectItem>
                 <SelectItem value="in_progress">In Progress</SelectItem>
                 <SelectItem value="under_review">Under Review</SelectItem>
@@ -141,11 +118,14 @@ export default function NewTaskModal(props: any) {
             </Select>
           </div>
 
-          <div className="flex items-center justify-between gap-4">
-            <span>Priority</span>
+          <div className="flex items-center justify-between gap-12">
+            <div className="flex items-center justify-center gap-4">
+              <ShieldAlert size={15} />
+              <span className="text-xl">Priority</span>
+            </div>
             <Select value={priority} onValueChange={setPriority}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Priority" />
+              <SelectTrigger className="w-full text-md text-gray-500 border-0">
+                <SelectValue placeholder="Not Selected" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="low">Low</SelectItem>
@@ -154,10 +134,63 @@ export default function NewTaskModal(props: any) {
               </SelectContent>
             </Select>
           </div>
-          <Button onClick={handleAddTask}>Add Task</Button>
+
+          <div className="flex items-center justify-between gap-9">
+            <div className="flex items-center justify-center gap-4">
+              <CalendarIcon size={15} />
+              <span className="text-xl">Deadline</span>
+            </div>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant={"outline"}
+                  className={cn(
+                    "w-full border-0 text-md justify-start text-left font-normal",
+                    !date && "text-muted-foreground",
+                  )}
+                >
+                  {date ? format(date, "PPP") : <span>Not Selected</span>}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0">
+                <Calendar
+                  mode="single"
+                  selected={date}
+                  onSelect={setDate}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center justify-center gap-4">
+              <Pen size={15} />
+              <span className="text-xl">Description</span>
+            </div>
+            <Input
+              placeholder="Not Selected"
+              className="h-10 text-md border-0"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
+          </div>
+          <div className="flex items-center justify-start gap-4">
+            <PlusIcon size={15} />
+            <span className="h-10 flex items-center">Add custom property</span>
+          </div>
+
+          <Separator />
+
+          <div className="text-gray-400">
+            Start writing or drag your own files here.
+          </div>
+
+          <Button className="my-4" onClick={handleAddTask}>
+            Add Task
+          </Button>
         </DialogContent>
       </Dialog>
     </div>
   );
 }
-
