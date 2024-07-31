@@ -16,9 +16,11 @@ import registerSchema from "./registerSchema";
 import axios from "axios";
 import { useToast } from "../ui/use-toast";
 import { useRouter } from "next/navigation";
+import { useUser } from "@/hooks/useAuth";
 
 export default function RegisterForm() {
   const [isLoading, setIsLoading] = useState(false);
+  const { setUser } = useUser();
 
   const { toast } = useToast();
   const router = useRouter();
@@ -48,6 +50,11 @@ export default function RegisterForm() {
         },
       );
       toast({ title: "Account created." });
+      setUser({
+        name: res.data.user.name,
+        email: res.data.user.email,
+        id: res.data.user.id,
+      });
       router.push("/dashboard");
       setIsLoading(false);
     } catch (err: any) {

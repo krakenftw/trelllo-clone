@@ -5,11 +5,12 @@ export function Draggable(props: { children: ReactNode; id: string }) {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: props.id,
   });
-  const style = transform
-    ? {
-        transform: `translate3d(${transform.x}px, ${transform.y}px, 0) `,
-      }
-    : undefined;
+ const style = transform
+  ? {
+      transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+      zIndex: 9999,
+    }
+  : undefined;
 
   return (
     <button

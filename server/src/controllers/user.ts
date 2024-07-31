@@ -33,7 +33,14 @@ export const handleUserLogin = async (req: Request, res: Response) => {
       email: user.email!,
     };
 
-    return res.status(200).json({ message: "User logged in successfully" });
+    return res.status(200).json({
+      user: {
+        name: user.name,
+        email: user.email,
+        id: user._id,
+      },
+      message: "User logged in successfully",
+    });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Server error" });
@@ -61,9 +68,7 @@ export const handleUserRegister = async (req: Request, res: Response) => {
       password: hashedPassword,
     });
 
-    await newUser.save();
-
-    console.log(newUser);
+    const savedUser = await newUser.save();
 
     req.session.user = {
       id: newUser.id,
@@ -71,7 +76,14 @@ export const handleUserRegister = async (req: Request, res: Response) => {
       email: newUser.email!,
     };
 
-    return res.status(201).json({ message: "User registered successfully" });
+    return res.status(201).json({
+      user: {
+        name: savedUser.name,
+        email: savedUser.email,
+        id: savedUser._id,
+      },
+      message: "User registered successfully",
+    });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Server error" });
@@ -103,6 +115,26 @@ export async function getUserData(req: Request, res: Response) {
     });
   } catch (error) {
     console.error("Error in getUserData:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+}
+
+export async function handleUserLogout(req: Request, res: Response) {
+  try {
+    if (!req.session.user || !req.session.user.id) {
+      return res
+        .status(401)
+        .json({ message: "Unauthorized: User not logged in" });
+    }
+    req.session.destroy((err) => {
+      if (err) {
+        console.error("Error in destroying session:", err);
+        return res.status(500).json({ message: "Internal Server Error" });
+      }
+      res.status(200).json({ message: "User logged out successfully" });
+    });
+  } catch (error) {
+    console.error("Error in handleUserLogout:", error);
     res.status(500).json({ message: "Internal Server Error" });
   }
 }

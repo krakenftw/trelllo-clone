@@ -22,7 +22,7 @@ export function TaskList({
   });
 
   return (
-    <div className="z-0 overflow-x-hidden w-1/4 overflow-scroll p-4 bg-gray-100 rounded-lg shadow">
+<div className="overflow-x-hidden w-1/4 overflow-scroll p-4 bg-gray-100 rounded-lg shadow" style={{ position: 'relative', zIndex: 1 }}>
       <div className="flex items-center w-full justify-between mb-4">
         <span className="font-semibold">{columns[name]}</span>
         <ChartNoAxesColumnIncreasing className="rotate-90" />

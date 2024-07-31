@@ -8,19 +8,20 @@ import {
   DragEndEvent,
   DragStartEvent,
   DragOverEvent,
+  DragOverlay,
 } from "@dnd-kit/core";
 import TimeAgo from "javascript-time-ago";
 import en from "javascript-time-ago/locale/en";
 import { TaskList } from "./TaskList";
 import NewTaskModal from "./NewTaskModal";
+import { Task } from "./Task";
 
 TimeAgo.addDefaultLocale(en);
 
-export default function TaskView() {
+export default function TaskView({ showModal, setShowModal }: any) {
   const [currTask, setCurrTask] = useState<any>(null);
   const { toast } = useToast();
   const [boardData, setBoardData] = useState<any>(null);
-  const [showModal, setShowModal] = useState(false);
   const [defaultStatus, setDefaultStatus] = useState<string>("todo");
   const [isDragComplete, setIsDragComplete] = useState(false);
 
@@ -114,47 +115,60 @@ export default function TaskView() {
   if (!boardData) return <Loader />;
 
   const handleDragStart = (event: DragStartEvent) => {
-    setCurrTask(event.active.id);
+    const { active } = event;
+    setCurrTask(active.id);
+    const task = Object.values(boardData)
+      .flat()
+      .find((t: any) => t._id === active.id);
+    setCurrTask(task);
   };
 
   const handleDragOver = (event: DragOverEvent) => {
     const { active, over } = event;
-
     if (!over) return;
 
-    if (active.id !== over.id) {
-      const sourceColumn = Object.keys(columns).find((column) =>
-        boardData[column].find((task: any) => task._id === active.id),
+    const activeId = active.id as string;
+    const overId = over.id as string;
+
+    if (activeId === overId) return;
+
+    const isActiveATask = active.data.current?.type === "task";
+    const isOverATask = over.data.current?.type === "task";
+
+    if (!isActiveATask) return;
+
+    const sourceColumn = Object.keys(columns).find((column) =>
+      boardData[column].find((task: any) => task._id === activeId),
+    );
+    const destinationColumn = isOverATask
+      ? Object.keys(columns).find((column) =>
+          boardData[column].find((task: any) => task._id === overId),
+        )
+      : overId;
+
+    if (!sourceColumn || !destinationColumn) return;
+
+    setBoardData((prev: any) => {
+      const prevColumns = { ...prev };
+
+      const activeTask = prevColumns[sourceColumn].find(
+        (t: any) => t._id === activeId,
       );
-      const destinationColumn = Object.keys(columns).find((column) =>
-        boardData[column].find((task: any) => task._id === over.id),
+      prevColumns[sourceColumn] = prevColumns[sourceColumn].filter(
+        (t: any) => t._id !== activeId,
       );
 
-      if (
-        sourceColumn &&
-        destinationColumn &&
-        sourceColumn !== destinationColumn
-      ) {
-        const sourceIndex = boardData[sourceColumn].findIndex(
-          (task: any) => task._id === active.id,
+      if (isOverATask) {
+        const overTaskIndex = prevColumns[destinationColumn].findIndex(
+          (t: any) => t._id === overId,
         );
-        const destinationIndex = boardData[destinationColumn].findIndex(
-          (task: any) => task._id === over.id,
-        );
-
-        const sourceItems = [...boardData[sourceColumn]];
-        const destinationItems = [...boardData[destinationColumn]];
-
-        const [movedItem] = sourceItems.splice(sourceIndex, 1);
-        destinationItems.splice(destinationIndex, 0, movedItem);
-
-        setBoardData((prev: any) => ({
-          ...prev,
-          [sourceColumn]: sourceItems,
-          [destinationColumn]: destinationItems,
-        }));
+        prevColumns[destinationColumn].splice(overTaskIndex, 0, activeTask);
+      } else {
+        prevColumns[destinationColumn].push(activeTask);
       }
-    }
+
+      return prevColumns;
+    });
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -218,7 +232,7 @@ export default function TaskView() {
         onDragEnd={handleDragEnd}
         onDragOver={handleDragOver}
       >
-        <div className="flex min-h-screen w-screen p-4">
+        <div className="flex w-full bg-white rounded-lg">
           <div className="flex w-full space-x-4">
             {Object.keys(columns).map((key) => (
               <TaskList
@@ -233,6 +247,11 @@ export default function TaskView() {
             ))}
           </div>
         </div>
+        <DragOverlay>
+          {currTask ? (
+            <Task task={currTask} handleDeleteTask={handleDeleteTask} />
+          ) : null}
+        </DragOverlay>
       </DndContext>
       <NewTaskModal
         setBoardData={setBoardData}

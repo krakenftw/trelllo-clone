@@ -1,13 +1,13 @@
 "use client";
-import TaskView from "@/components/dashboard/TaskView";
+import DashHero from "@/components/dashboard/DashHero";
+import Sidebar from "@/components/dashboard/Sidebar";
 import Loader from "@/components/Loading";
-import { useToast } from "@/components/ui/use-toast";
 import { useUser } from "@/hooks/useAuth";
-import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function Dashboard() {
+  const [showModal, setShowModal] = useState(false);
   const router = useRouter();
   const { user, loading } = useUser();
 
@@ -21,9 +21,22 @@ export default function Dashboard() {
     return <Loader />;
   }
 
+  if (!user) {
+    return null; // or another loading indicator if you prefer
+  }
+
   return (
-    <div className="max-w-screen h-screen">
-      <TaskView />
+    <div className="max-w-screen h-screen flex">
+      <div className="w-1/6">
+        <Sidebar user={user} setShowModal={setShowModal} />
+      </div>
+      <div className="w-full">
+        <DashHero
+          user={user}
+          showModal={showModal}
+          setShowModal={setShowModal}
+        />
+      </div>
     </div>
   );
 }

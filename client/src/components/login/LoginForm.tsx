@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Form,
   FormControl,
@@ -16,10 +16,11 @@ import loginSchema from "./loginSchema";
 import axios from "axios";
 import { useToast } from "../ui/use-toast";
 import { useRouter } from "next/navigation";
+import { useUser } from "@/hooks/useAuth";
 
 export default function LoginForm() {
+  const { setUser } = useUser();
   const [isLoading, setIsLoading] = useState(false);
-
   const { toast } = useToast();
   const router = useRouter();
 
@@ -31,10 +32,17 @@ export default function LoginForm() {
     },
   });
 
-  async function onSubmit(values: z.infer<typeof loginSchema>): Promise<void> {
+  useEffect(() => {
+    return () => {
+      setIsLoading(false);
+    };
+  }, []);
+
+  async function onSubmit(values: z.infer<typeof loginSchema>, e: any) {
+    e.preventDefault();
     setIsLoading(true);
     try {
-      await axios.post(
+      const res = await axios.post(
         `${process.env.NEXT_PUBLIC_SERVER_URL}/user/login`,
         {
           email: values.email,
@@ -42,16 +50,30 @@ export default function LoginForm() {
         },
         { withCredentials: true },
       );
-      toast({ title: "Logged in." });
-      router.push("/dashboard");
-      setIsLoading(false);
+
+      if (res.status === 200) {
+        toast({ title: "Logged in successfully." });
+        setUser({
+          name: res.data.user.name,
+          email: res.data.user.email,
+          id: res.data.user.id,
+        });
+
+        setTimeout(() => {
+          router.push("/dashboard");
+        }, 400);
+      } else {
+        throw new Error("Login failed");
+      }
     } catch (err: any) {
-      console.log(err);
+      console.error(err);
       toast({
         title: "Error",
-        description: err.response?.data?.message || "Internal Server Error",
+        description:
+          err.response?.data?.message || "Login failed. Please try again.",
         variant: "destructive",
       });
+    } finally {
       setIsLoading(false);
     }
   }
@@ -81,14 +103,18 @@ export default function LoginForm() {
           render={({ field }) => (
             <FormItem>
               <FormControl>
-                <Input placeholder="Enter password" {...field} />
+                <Input
+                  type="password"
+                  placeholder="Enter password"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
         <Button disabled={isLoading} className="w-full" type="submit">
-          {isLoading ? "Loading.." : "Submit"}
+          {isLoading ? "Logging in..." : "Submit"}
         </Button>
       </form>
     </Form>

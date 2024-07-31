@@ -13,7 +13,7 @@ export function SortableItem(props: any) {
 
   return (
     <div
-      className="z-50"
+      className=""
       ref={setNodeRef}
       style={style}
       {...attributes}
