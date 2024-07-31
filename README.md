@@ -45,7 +45,8 @@ Brief description of your project goes here.
 3. Create a `.env` file in the client directory and add any necessary environment variables:
 
 `PORT=3000`
-`DATABASE_URL=your_database_connection_string`
+`DATABASE_URL=your_database_connection_string (mongodb)`
+`SESSION_SECRET=your_session_secret`
 
 ## Running the Application
 
