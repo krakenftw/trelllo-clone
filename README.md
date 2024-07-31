@@ -9,14 +9,13 @@ Brief description of your project goes here.
   - [Client Setup (Next.js)](#client-setup-nextjs)
   - [Server Setup (Express.js)](#server-setup-expressjs)
 - [Running the Application](#running-the-application)
-- [Additional Information](#additional-information)
 
 ## Installation
 
 ### Prerequisites
 
-- Node.js (version X.X.X or higher)
-- npm (version X.X.X or higher)
+- Node.js
+- npm
 
 ### Client Setup (Next.js)
 

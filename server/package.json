@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node dist/server.js",
     "dev": "tsx watch src/server.ts",
     "build": "tsup src/server.ts --minify --dts --format cjs --out-dir dist"
   },
