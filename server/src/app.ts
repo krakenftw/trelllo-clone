@@ -14,9 +14,9 @@ app.use(
   cors({
     origin: [
       "http://localhost:3000",
-      "trelllo-clone.vercel.app",
-      "trelllo-clone-git-main-krakenftws-projects.vercel.app",
-      "trelllo-clone-wp1t2sglp-krakenftws-projects.vercel.app",
+      "https://trelllo-clone.vercel.app",
+      "https://trelllo-clone-git-main-krakenftws-projects.vercel.app",
+      "https://trelllo-clone-wp1t2sglp-krakenftws-projects.vercel.app",
     ],
     credentials: true,
   }),
